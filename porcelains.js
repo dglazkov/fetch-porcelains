@@ -43,6 +43,24 @@ class StreamCompletionChunker {
   }
 }
 
+class OpenAIRequest extends Request {
+  #params;
+
+  constructor(url, init, params) {
+    init.body = JSON.stringify(params);
+    super(url, init);
+    this.#params = params;
+  }
+
+  prompt(prompt) {
+    return new OpenAIRequest(
+      this.url,
+      { headers: this.headers, method: this.method },
+      { ...this.#params, prompt }
+    );
+  }
+}
+
 class OpenAI {
   apiKey;
 
@@ -56,8 +74,7 @@ class OpenAI {
       "Content-Type": "application/json",
       Authorization: `Bearer ${this.apiKey}`,
     };
-    const body = JSON.stringify(params);
-    return new Request(url, { headers, body, method: "POST" });
+    return new OpenAIRequest(url, { headers, method: "POST" }, params);
   }
 }
 
