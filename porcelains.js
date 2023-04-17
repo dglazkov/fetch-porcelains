@@ -43,16 +43,27 @@ class StreamCompletionChunker {
   }
 }
 
-export const completion = {
-  request(apiKey, params) {
+class OpenAI {
+  apiKey;
+
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+  }
+
+  completion(params) {
     const url = "https://api.openai.com/v1/completions";
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
     };
     const body = JSON.stringify(params);
     return new Request(url, { headers, body, method: "POST" });
-  },
+  }
+}
+
+export const openai = (apiKey) => new OpenAI(apiKey);
+
+export const completion = {
   async simple(response) {
     const data = await response.json();
     return data.choices[0].text;

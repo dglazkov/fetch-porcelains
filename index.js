@@ -1,10 +1,10 @@
 import { config } from "dotenv";
-import { completion } from "./porcelains.js";
+import { completion, openai } from "./porcelains.js";
 
 config();
 
 const response = await fetch(
-  completion.request(process.env.OPENAI_API_KEY, {
+  openai(process.env.OPENAI_API_KEY).completion({
     model: "text-davinci-003",
     prompt: "Give me some lyrics, make it up.",
     max_tokens: 256,
@@ -14,7 +14,7 @@ const response = await fetch(
 console.log(await completion.simple(response));
 
 const stream = await fetch(
-  completion.request(process.env.OPENAI_API_KEY, {
+  openai(process.env.OPENAI_API_KEY).completion({
     model: "text-davinci-003",
     prompt: "Give me some lyrics, make it up.",
     max_tokens: 256,
