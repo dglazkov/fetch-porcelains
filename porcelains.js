@@ -51,7 +51,7 @@ export const completion = {
       Authorization: `Bearer ${apiKey}`,
     };
     const body = JSON.stringify(params);
-    return [url, { headers, body, method: "POST" }];
+    return new Request(url, { headers, body, method: "POST" });
   },
   async simple(response) {
     const data = await response.json();
