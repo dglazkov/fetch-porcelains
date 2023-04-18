@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { openai, CompletionStreamChunker } from "./porcelains.js";
+import { openai, CompletionStreamer } from "./porcelains.js";
 
 config();
 
@@ -42,7 +42,7 @@ config();
       stream: true,
     })
   );
-  const response = stream.body.pipeThrough(new CompletionStreamChunker());
+  const response = stream.body.pipeThrough(new CompletionStreamer());
   for await (const chunk of response) {
     process.stdout.write(chunk.completion);
   }

@@ -1,6 +1,16 @@
-class OpenAIStreamParser {
-  onchunk;
-  onend;
+export class CompletionStreamer {
+  writable;
+  readable;
+  controller;
+
+  constructor() {
+    this.writable = new WritableStream(this);
+    this.readable = new ReadableStream(this);
+  }
+
+  start(controller) {
+    this.controller = controller;
+  }
 
   write(chunk) {
     const decoder = new TextDecoder();
@@ -15,31 +25,15 @@ class OpenAIStreamParser {
         const content = line.substring(pos + 1).trim();
         if (content.length == 0) return;
         if (content === "[DONE]") {
-          this.onend?.();
+          this.controller?.close();
           return;
         }
         const parsed = JSON.parse(content);
-        this.onchunk?.({
+        this.controller?.enqueue({
           completion: parsed.choices[0].text || "",
           response: parsed,
         });
       });
-  }
-}
-
-export class CompletionStreamChunker {
-  writable;
-  readable;
-
-  constructor() {
-    const parser = new OpenAIStreamParser();
-    this.writable = new WritableStream(parser);
-    this.readable = new ReadableStream({
-      start(controller) {
-        parser.onchunk = (chunk) => controller.enqueue(chunk);
-        parser.onend = () => controller.close();
-      },
-    });
   }
 }
 
