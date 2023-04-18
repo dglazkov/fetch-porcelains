@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { completion, openai } from "./porcelains.js";
+import { openai, CompletionStreamChunker } from "./porcelains.js";
 
 config();
 
@@ -8,12 +8,13 @@ config();
   const response = await fetch(
     openai(process.env.OPENAI_API_KEY).completion({
       model: "text-davinci-003",
-      prompt: "Give me some lyrics, make it up.",
+      prompt: "How do porcelains relate to plumbing?",
       max_tokens: 256,
       temperature: 0,
     })
   );
-  console.log(await completion.simple(response));
+  const completion = await response.json();
+  console.log(completion.choices[0].text);
 }
 
 {
@@ -23,8 +24,11 @@ config();
     max_tokens: 256,
     temperature: 0,
   });
-  const response = await fetch(davinci.prompt("Say something funny."));
-  console.log(await completion.simple(response));
+  const response = await fetch(
+    davinci.prompt("Say something funny about porcelains.")
+  );
+  const completion = await response.json();
+  console.log(completion.choices[0].text);
 }
 
 {
@@ -32,14 +36,14 @@ config();
   const stream = await fetch(
     openai(process.env.OPENAI_API_KEY).completion({
       model: "text-davinci-003",
-      prompt: "Give me some lyrics, make it up.",
+      prompt: "Give me some lyrics about porcelains.",
       max_tokens: 256,
       temperature: 0,
       stream: true,
     })
   );
-  const streamedLyrics = await completion.stream(stream);
-  for await (const chunk of streamedLyrics) {
+  const response = stream.body.pipeThrough(new CompletionStreamChunker());
+  for await (const chunk of response) {
     process.stdout.write(chunk.completion);
   }
   process.stdout.write("\n");

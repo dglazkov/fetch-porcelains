@@ -27,7 +27,7 @@ class OpenAIStreamParser {
   }
 }
 
-class StreamCompletionChunker {
+export class CompletionStreamChunker {
   writable;
   readable;
 
@@ -79,13 +79,3 @@ class OpenAI {
 }
 
 export const openai = (apiKey) => new OpenAI(apiKey);
-
-export const completion = {
-  async simple(response) {
-    const data = await response.json();
-    return data.choices[0].text;
-  },
-  async stream(response) {
-    return response.body.pipeThrough(new StreamCompletionChunker());
-  },
-};
